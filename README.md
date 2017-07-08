@@ -5,7 +5,7 @@ A Java implementation of the [Segment's KSUID library](https://github.com/segmen
 # Maven Central
 At this time, the library is not published to Maven Central. This is work in progress.
 
-#Quick Start
+# Quick Start
 ``` java
 final Ksuid ksuid = new Ksuid();
 final String uid = ksuid.generate();
