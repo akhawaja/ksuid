@@ -8,7 +8,7 @@
     <artifactId>ksuid</artifactId>
     <version>1.0-SNAPSHOT</version>
 
-    <name>akhawaja/ksuid</name>
+    <name>ksuid</name>
 
     <description>A Java port of Segment's K-Sortable Globally Unique IDs library written in Go.</description>
 
