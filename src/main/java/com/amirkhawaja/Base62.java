@@ -11,7 +11,7 @@ import java.util.Map;
  * <a href="https://www.codeproject.com/Articles/1076295/Base-Encode">Code Project</a>
  * </p>
  *
- * @author Amir Khawaja <khawaja.amir@gmail.com>
+ * @author Amir Khawaja khawaja.amir@gmail.com
  */
 public class Base62 {
 
