@@ -3,7 +3,15 @@
 A Java implementation of the [Segment's KSUID library](https://github.com/segmentio/ksuid). For a full treatment of why this came about, you can read the [blog post](https://segment.com/blog/a-brief-history-of-the-uuid/) on their website.
 
 # Maven Central
-At this time, the library is not published to Maven Central. This is work in progress.
+This library can be downloaded from Maven Central by adding the following as a dependency in your pom.xml file:
+
+``` xml
+<dependency>
+    <groupId>com.amirkhawaja</groupId>
+    <artifactId>ksuid</artifactId>
+    <version>1.0.0</version>
+</dependency>
+```
 
 # Quick Start
 ``` java
