@@ -26,6 +26,7 @@ public class Ksuid {
     /**
      * Generate a new KSUID.
      *
+     * @throws IOException Thrown when unable to generate a KSUID
      * @return New KSUID value.
      */
     public String generate() throws IOException {
