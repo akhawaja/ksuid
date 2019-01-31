@@ -1,13 +1,12 @@
 package com.amirkhawaja;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.security.SecureRandom;
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
 import java.util.Arrays;
 
 public class Ksuid {
@@ -48,7 +47,7 @@ public class Ksuid {
         }
 
         private byte[] makeTimestamp() {
-            final long utc = ZonedDateTime.now(ZoneOffset.UTC).toInstant().toEpochMilli() / 1000;
+            final long utc = new DateTime(DateTimeZone.UTC).getMillis() / 1000;
             final int timestamp = (int) (utc - EPOCH);
 
             return ByteBuffer.allocate(TIMESTAMP_LENGTH).putInt(timestamp).array();
@@ -94,7 +93,7 @@ public class Ksuid {
             final byte[] payload = new byte[PAYLOAD_LENGTH];
 
             System.arraycopy(decodedKsuid, TIMESTAMP_LENGTH,
-                    payload,0, decodedKsuid.length - TIMESTAMP_LENGTH);
+                payload, 0, decodedKsuid.length - TIMESTAMP_LENGTH);
 
             return Arrays.toString(payload);
         }
@@ -110,7 +109,7 @@ public class Ksuid {
 
             final long timestamp = decodeTimestamp(bytes);
             final String payload = decodePayload(bytes);
-            final ZonedDateTime utc = Instant.ofEpochSecond(timestamp).atZone(ZoneId.of("UTC"));
+            final DateTime utc = new DateTime(timestamp * 1000, DateTimeZone.UTC);
 
             return String.format("Time: %s\nTimestamp: %d\nPayload: %s", utc, timestamp, payload);
         }
