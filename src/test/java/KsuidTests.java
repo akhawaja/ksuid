@@ -1,4 +1,5 @@
 import com.amirkhawaja.Ksuid;
+import com.amirkhawaja.KsuidComponents;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -6,6 +7,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 
 public class KsuidTests {
 
@@ -20,9 +22,17 @@ public class KsuidTests {
     @Test
     public void testSingleKsuidWorksCorrectly() throws IOException {
         final String uid = ksuid.generate();
-        System.out.println(uid);
         assertEquals(MAX_KSUID_LENGTH, uid.length());
-        System.out.println(ksuid.parse(uid));
+    }
+
+    @Test
+    public void testSingleKsuidWithSpecifiedTimestampWorksCorrectly() throws IOException {
+        final int timestamp = 1549735200;
+        final String uid = ksuid.generate(timestamp);
+        final KsuidComponents ksuidComponents = ksuid.parse(uid);
+
+        assertEquals(MAX_KSUID_LENGTH, uid.length());
+        assertEquals(timestamp, ksuidComponents.getTimestamp());
     }
 
     @Test
@@ -39,7 +49,7 @@ public class KsuidTests {
         final ArrayList<String> bucket = new ArrayList<>();
         for (int i = 0; i < max; i++) {
             final String uid = ksuid.generate();
-            assertEquals(false, bucket.contains(uid));
+            assertFalse(bucket.contains(uid));
             bucket.add(uid);
         }
 

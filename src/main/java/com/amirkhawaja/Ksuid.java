@@ -1,5 +1,6 @@
 package com.amirkhawaja;
 
+import io.seruco.encoding.base62.Base62;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -26,15 +27,32 @@ public class Ksuid {
     /**
      * Generate a new KSUID.
      *
-     * @throws IOException Thrown when unable to generate a KSUID
      * @return New KSUID value.
+     * @throws IOException Thrown when unable to generate a KSUID
      */
     public String generate() throws IOException {
         final KsuidGenerator uid = new KsuidGenerator(random);
         return uid.nextId();
     }
 
-    public String parse(String ksuid) {
+    /**
+     * Generate a new KSUID.
+     *
+     * @return New KSUID value.
+     * @throws IOException Thrown when unable to generate a KSUID
+     */
+    public String generate(final int timestamp) throws IOException {
+        final KsuidGenerator uid = new KsuidGenerator(random);
+        final byte[] ts = ByteBuffer.allocate(TIMESTAMP_LENGTH).putInt(timestamp - EPOCH).array();
+        return uid.nextId(ts);
+    }
+
+    public String print(String ksuid) {
+        final KsuidParser parser = new KsuidParser();
+        return parser.print(ksuid);
+    }
+
+    public KsuidComponents parse(String ksuid) {
         final KsuidParser parser = new KsuidParser();
         return parser.parse(ksuid);
     }
@@ -63,14 +81,18 @@ public class Ksuid {
 
 
         String nextId() throws IOException, RuntimeException {
-            final byte[] timestamp = makeTimestamp();
+            return nextId(makeTimestamp());
+        }
+
+        String nextId(final byte[] timestamp) throws IOException, RuntimeException {
             final byte[] payload = makePayload();
+            final Base62 base62 = Base62.createInstance();
 
             final ByteArrayOutputStream output = new ByteArrayOutputStream();
             output.write(timestamp);
             output.write(payload);
 
-            final String uid = Base62.encode(output.toByteArray());
+            final String uid = new String(base62.encode(output.toByteArray()));
 
             if (uid.length() > MAX_ENCODED_LENGTH) {
                 return uid.substring(0, MAX_ENCODED_LENGTH);
@@ -90,13 +112,28 @@ public class Ksuid {
             return ByteBuffer.wrap(timestamp).getInt() + EPOCH;
         }
 
-        private String decodePayload(final byte[] decodedKsuid) {
+        private byte[] decodePayload(final byte[] decodedKsuid) {
             final byte[] payload = new byte[PAYLOAD_LENGTH];
 
             System.arraycopy(decodedKsuid, TIMESTAMP_LENGTH,
-                    payload,0, decodedKsuid.length - TIMESTAMP_LENGTH);
+                payload, 0, decodedKsuid.length - TIMESTAMP_LENGTH);
 
-            return Arrays.toString(payload);
+            return payload;
+        }
+
+        /**
+         * Print a Ksuid and display its component parts.
+         *
+         * @param ksuid The Ksuid to parse.
+         * @return The component parts of the Ksuid.
+         */
+        String print(String ksuid) {
+            KsuidComponents ksuidComponents = parse(ksuid);
+            final ZonedDateTime utc = Instant.ofEpochSecond(ksuidComponents.getTimestamp())
+                .atZone(ZoneId.of("UTC"));
+
+            return String.format("Time: %s\nTimestamp: %d\nPayload: %s",
+                utc, ksuidComponents.getTimestamp(), Arrays.toString(ksuidComponents.getPayload()));
         }
 
         /**
@@ -105,14 +142,14 @@ public class Ksuid {
          * @param ksuid The Ksuid to parse.
          * @return The component parts of the Ksuid.
          */
-        String parse(String ksuid) {
-            final byte[] bytes = Base62.decode(ksuid.toCharArray());
+        KsuidComponents parse(String ksuid) {
+            final Base62 base62 = Base62.createInstance();
+            final byte[] buffer = base62.decode(ksuid.getBytes());
 
-            final long timestamp = decodeTimestamp(bytes);
-            final String payload = decodePayload(bytes);
-            final ZonedDateTime utc = Instant.ofEpochSecond(timestamp).atZone(ZoneId.of("UTC"));
+            final long timestamp = decodeTimestamp(buffer);
+            final byte[] payload = decodePayload(buffer);
 
-            return String.format("Time: %s\nTimestamp: %d\nPayload: %s", utc, timestamp, payload);
+            return new KsuidComponents(ksuid, timestamp, payload);
         }
 
     }
