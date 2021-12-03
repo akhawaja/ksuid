@@ -29,9 +29,13 @@ public class Ksuid {
      * @throws IOException Thrown when unable to generate a KSUID
      * @return New KSUID value.
      */
-    public String generate() throws IOException {
-        final KsuidGenerator uid = new KsuidGenerator(random);
-        return uid.nextId();
+    public String generate()  {
+        try {
+            final KsuidGenerator uid = new KsuidGenerator(random);
+            return uid.nextId();
+        }catch (IOException e){
+            throw new RuntimeException("unexpected error: unable to generate a KSUID", e);
+        }
     }
 
     public String parse(String ksuid) {
